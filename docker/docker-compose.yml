@@ -1,0 +1,40 @@
+# version: "3.8"
+
+services:
+  auth-service:
+    build: ../backend/auth-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ../backend/auth-service:/app
+    environment:
+      - NODE_ENV=production
+
+  video-processing-service:
+    build: ../backend/video-processing-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ../backend/video-processing-service:/app
+    environment:
+      - NODE_ENV=production
+
+  content-service:
+    build: ../backend/content-service
+    ports:
+      - "5003:5003"
+    volumes:
+      - ../backend/content-service:/app
+    environment:
+      - NODE_ENV=production
+
+  recommendation-service:
+    build:
+      context: ../backend/recommendation-service
+      dockerfile: ../docker/recommendation.Dockerfile
+    ports:
+      - "5004:5004"
+    volumes:
+      - ../backend/recommendation-service:/app
+    environment:
+      - FLASK_ENV=production
