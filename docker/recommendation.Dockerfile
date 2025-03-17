@@ -14,5 +14,5 @@ COPY . .
 # Expose port
 EXPOSE 5004
 
-# Start Flask application
-CMD ["python", "api.py"]
+# Run with Gunicorn (Recommended for Flask)
+CMD ["gunicorn", "-b", "0.0.0.0:5004", "api:app"]
