@@ -1,12 +1,24 @@
 import express from "express";
 
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// app.get("/", (req, res) => {
+//   res.send("Service is running");
+// });
+
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+// const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
-app.get("/", (req, res) => {
-  res.send("Service is running");
-});
+app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Test Routes
+app.get("/", (req, res) => res.send("Auth Service Running 🚀"));
+app.get("/login", (req, res) => res.json({ message: "Login API working!" }));
+
+app.listen(PORT, () => console.log(`✅ Auth Service running on port ${PORT}`));

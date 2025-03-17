@@ -21,6 +21,10 @@ app.use("/api", routes);
 // app.use(authMiddleware); // Protects APIs
 // app.use(errorHandler); // Handles errors
 
+app.get("/", (req, res) => {
+  res.send("API Gateway is running 🚀");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 API Gateway running on port ${PORT}`));
 
