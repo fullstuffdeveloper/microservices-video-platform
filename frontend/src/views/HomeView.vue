@@ -4,6 +4,7 @@ import TheWelcome from '../components/TheWelcome.vue'
 
 <template>
   <main>
-    <TheWelcome />
+    <!-- <TheWelcome /> -->
+    Yayyy, Welcome to Microservices-Based Media Streaming Platform
   </main>
 </template>

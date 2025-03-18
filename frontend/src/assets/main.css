@@ -1,4 +1,12 @@
-@import './base.css';
+/* @import './base.css'; */
+
+/* @use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities'; */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 #app {
   max-width: 1280px;
@@ -27,9 +35,9 @@ a,
     place-items: center;
   }
 
-  #app {
+  /* #app {
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
-  }
+  } */
 }
