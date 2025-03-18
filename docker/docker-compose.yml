@@ -1,5 +1,19 @@
 # version: "3.8"
 services:
+  api-gateway:
+    build: ../api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - recommendation-service
+      - content-service
+      - video-processing-service
+    environment:
+      - NODE_ENV=production
+    networks:
+      - backend-network
+
   auth-service:
     build:
       context: ../backend/auth-service
@@ -40,3 +54,16 @@ services:
       - ../backend/recommendation-service:/app # Corrected volume mount
     environment:
       - FLASK_ENV=production
+
+  frontend:
+    build: ../frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
