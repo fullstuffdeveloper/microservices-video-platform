@@ -65,7 +65,7 @@
             class="social-button w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2"
             @click="handleGoogleLogin"
           >
-            <img src="../assets/icons/google-icon.svg" class="w-5 h-5" alt="Google" />
+            <img src="@/assets/icons/google-icon.svg" class="w-5 h-5" alt="Google" />
             Google
           </button>
           <!-- Twitter Login Button -->
@@ -73,7 +73,7 @@
             class="social-button w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2"
             :disabled="true"
           >
-            <img src="../assets/icons/twitter-icon.svg" class="w-5 h-5" alt="Twitter" />
+            <img src="@/assets/icons/twitter-icon.svg" class="w-5 h-5" alt="Twitter" />
             Twitter
           </button>
         </div>
@@ -85,7 +85,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 const authStore = useAuthStore()
+const router = useRouter()
 
 // return {
 //   authStore,
@@ -104,7 +106,7 @@ const handleGoogleLogin = async () => {
   const res = await authStore.signInWithGoogle()
   if (res.user) {
     console.log('Google Login Success')
-    this.$router.push('/')
+    router.push('/')
   } else {
     console.log('Google Login Failed')
   }
