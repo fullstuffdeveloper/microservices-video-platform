@@ -104,11 +104,12 @@ const handleGoogleLogin = async () => {
   // Add your Google login logic here
   console.log('Google Login')
   const res = await authStore.signInWithGoogle()
-  if (res.user) {
+  if (res.role === 'admin') {
     console.log('Google Login Success')
-    router.push('/')
+    // router.push('/')
+    router.push('/admin')
   } else {
-    console.log('Google Login Failed')
+    router.push('/user')
   }
 }
 </script>

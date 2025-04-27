@@ -7,6 +7,8 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // import './assets/main.css'
 import ElementPlus from 'element-plus'
 import { useAuthStore } from '@/stores/authStore'
+import '@/assets/tailwind.css'
+import 'element-plus/dist/index.css'
 import { browserLocalPersistence, setPersistence, getAuth } from 'firebase/auth'
 
 // Initialize Firebase Authentication
