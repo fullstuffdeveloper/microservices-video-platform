@@ -1,4 +1,4 @@
-# version: "3.8"
+version: "3.8"
 services:
   api-gateway:
     build: ../api-gateway
@@ -20,9 +20,11 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ../backend/auth-service:/app # Corrected volume mount
+      - ../backend/auth-service:/app
     environment:
       - NODE_ENV=production
+    networks:             # <<<<<<<<<<<<<< Added
+      - backend-network   # <<<<<<<<<<<<<< Added
 
   video-processing-service:
     build:
@@ -30,9 +32,11 @@ services:
     ports:
       - "5003:5003"
     volumes:
-      - ../backend/video-processing-service:/app # Corrected volume mount
+      - ../backend/video-processing-service:/app
     environment:
       - NODE_ENV=production
+    networks:             # <<<<<<<<<<<<<< Added
+      - backend-network   # <<<<<<<<<<<<<< Added
 
   content-service:
     build:
@@ -40,20 +44,23 @@ services:
     ports:
       - "5002:5002"
     volumes:
-      - ../backend/content-service:/app # Corrected volume mount
+      - ../backend/content-service:/app
     environment:
       - NODE_ENV=production
+    networks:             # <<<<<<<<<<<<<< Already there ✅
+      - backend-network
 
   recommendation-service:
     build:
       context: ../backend/recommendation-service
-      #dockerfile: ./recommendation.Dockerfile # POTENTIAL PROBLEM - See note below!
     ports:
       - "5004:5004"
     volumes:
-      - ../backend/recommendation-service:/app # Corrected volume mount
+      - ../backend/recommendation-service:/app
     environment:
       - FLASK_ENV=production
+    networks:             # <<<<<<<<<<<<<< Added
+      - backend-network
 
   frontend:
     build: ../frontend

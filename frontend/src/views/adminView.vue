@@ -1,92 +1,110 @@
-// src/pages/AdminPage.vue
-<!-- <template>
-  <div class="min-h-screen p-8">
-    <h1 class="text-2xl font-bold mb-6">Admin Dashboard - Upload Video</h1>
-
-    <form @submit.prevent="handleUpload" class="space-y-6">
-      <div>
-        <label class="block mb-2">Select Video File</label>
-        <input type="file" accept="video/*" @change="handleFileChange" />
-      </div>
-
-      <div>
-        <label class="block mb-2">Optional Thumbnail</label>
-        <input type="file" accept="image/*" @change="handleThumbnailChange" />
-      </div>
-
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Upload Video
-      </button>
-    </form>
-
-    <p v-if="uploadMessage" class="mt-4 text-green-600">{{ uploadMessage }}</p>
-  </div>
-</template> -->
 <template>
-  <div class="min-h-screen bg-gray-100 p-8 mx-auto max-w-3xl">
-    <el-card shadow="hover">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-3xl font-bold bg-blue-500 text-white p-4 rounded-lg">Admin Dashboard</h1>
-        </div>
-        <div class="w-1/2">
-          <el-button class="w-auto" type="danger" @click="logout">Logout</el-button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <el-card shadow="hover">
-          <h2 class="text-xl font-semibold mb-2">Upload New Video</h2>
-          <el-upload class="upload-demo" drag>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
+  <div class="min-h-screen bg-gray-100 p-8">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+    <el-card shadow="hover" class="mb-8">
+      <h2 class="text-xl font-semibold mb-2">Upload New Video</h2>
+      <el-form label-position="top">
+        <el-form-item label="Video Title">
+          <el-input v-model="title" placeholder="Enter video title..." class="w-auto" />
+        </el-form-item>
+        <el-form-item label="Select Video File">
+          <el-upload
+            class="upload-demo"
+            drag
+            :show-file-list="false"
+            :auto-upload="false"
+            :before-upload="handleFileChange"
+            :on-change="handleFileChange"
+            :on-remove="handleFileRemove"
+            :file-list="fileList"
+            :limit="1"
+            :accept="'video/*'"
+          >
+            <div class="el-upload__text">Drop or click to select file</div>
+            <div class="selected-file" v-if="selectedFile">
+              <video :src="selectedFile" class="video-player" controls></video>
+              Selected File: {{ selectedFile.name }}
+            </div>
           </el-upload>
-        </el-card>
-        <el-card shadow="hover">
-          <h2 class="text-xl font-semibold mb-2">Manage Uploaded Videos</h2>
-          <p class="text-gray-600">Coming soon...</p>
-        </el-card>
+        </el-form-item>
+        <el-form-item>
+          <el-button class="w-auto" type="primary" @click="handleUpload">Upload Video</el-button>
+        </el-form-item>
+      </el-form>
+
+      <div v-if="uploadProgress > 0 && uploadProgress < 100" class="mt-4">
+        <el-progress :percentage="uploadProgress" status="active" />
+      </div>
+
+      <div v-if="uploadMessage" class="mt-4 text-green-600 font-semibold">
+        {{ uploadMessage }}
       </div>
     </el-card>
+
+    <el-button type="danger" class="w-auto" @click="logout"> Logout </el-button>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import useFileUpload from '@/composables/useFileUpload'
+import { saveVideoMetadata } from '@/services/videoService'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 
-const videoFile = ref(null)
-const thumbnailFile = ref(null)
+const { uploadFile, uploadProgress, uploadError, downloadUrl } = useFileUpload()
+const authStore = useAuthStore()
+const router = useRouter()
+
+const selectedFile = ref(null)
+const title = ref('')
 const uploadMessage = ref('')
 
-function handleFileChange(event) {
-  videoFile.value = event.target.files[0]
+const handleFileChange = async (file) => {
+  console.log(file)
+  selectedFile.value = file
+  await handleUpload()
+  //   return false // Prevent auto-upload
 }
 
-onMounted(() => {
-  // TODO: Fetch videos from backend content service
-  console.log('Fetching videos...')
-})
-
-function handleThumbnailChange(event) {
-  thumbnailFile.value = event.target.files[0]
-}
-
-async function handleUpload() {
-  if (!videoFile.value) {
-    alert('Please select a video file.')
+const handleUpload = async () => {
+  if (!selectedFile.value || !title.value) {
+    alert('Please select a file and enter a title.')
     return
   }
 
-  // Simulate upload API call
-  console.log('Uploading video:', videoFile.value)
-  console.log('Uploading thumbnail (optional):', thumbnailFile.value)
+  await uploadFile(selectedFile.value)
 
-  // TODO: Connect with backend microservice
+  if (downloadUrl.value) {
+    const videoData = {
+      title: title.value,
+      url: downloadUrl.value,
+      uploadedBy: authStore.user?.email || 'anonymous',
+      createdAt: new Date().toISOString(),
+    }
 
-  uploadMessage.value = 'Video uploaded successfully!'
+    await saveVideoMetadata(videoData)
+    uploadMessage.value = 'Video uploaded successfully! 🎉'
+  }
+}
+
+const logout = async () => {
+  await authStore.logout()
+  router.push('/login')
 }
 </script>
 
 <style scoped>
+.upload-demo {
+  border: 2px dashed #dcdfe6;
+  border-radius: 6px;
+  background-color: #fafafa;
+  text-align: center;
+  padding: 40px 20px;
+  margin-bottom: 20px;
+}
+
 .w-auto {
   width: auto;
 }

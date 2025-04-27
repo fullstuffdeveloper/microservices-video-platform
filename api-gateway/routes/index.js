@@ -66,10 +66,14 @@ const router = express.Router();
 
 // Define microservice URLs
 const SERVICES = {
-  auth: "http://auth-service:5000",
-  content: "http://content-service:5002",
-  recommendation: "http://recommendation-service:5004",
-  videoProcessing: "http://video-processing-service:5000",
+  auth: process.env.AUTH_SERVICE_URL || "http://auth-service:5001",
+  content: process.env.CONTENT_SERVICE_URL || "http://content-service:5002",
+  recommendation:
+    process.env.RECOMMENDATION_SERVICE_URL ||
+    "http://recommendation-service:5004",
+  videoProcessing:
+    process.env.VIDEO_PROCESSING_SERVICE_URL ||
+    "http://video-processing-service:5003",
 };
 
 // Proxy function
@@ -95,6 +99,10 @@ router.use("/recommendation", (req, res) =>
 router.use("/video-processing", (req, res) =>
   proxyRequest(req, res, SERVICES.videoProcessing)
 );
-router.use("/content", (req, res) => proxyRequest(req, res, SERVICES.content));
+// For content-service - remove "/content" prefix before forwarding
+router.use("/content", (req, res) => {
+  const newPath = req.path; // `/upload-metadata`
+  proxyRequest(req, res, SERVICES.content, newPath);
+});
 
 module.exports = router;
