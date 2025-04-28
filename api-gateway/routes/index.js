@@ -91,6 +91,25 @@ const proxyRequest = async (req, res, serviceUrl) => {
   }
 };
 
+const proxyRequestUpload = async (req, res, serviceUrl) => {
+  console.log("🔥 Proxy Request to:", serviceUrl, req, req.body);
+  try {
+    const response = await axios({
+      method: req.method,
+      url: `${serviceUrl}${req.path}`,
+      data: req,
+      headers: {
+        ...req.headers, // 🔥 forward original headers (important!)
+      },
+      responseType: "json",
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error(`❌ Error reaching ${serviceUrl}${req.path}:`, error.message);
+    res.status(500).json({ error: "Service unavailable" });
+  }
+};
+
 // Register Routes
 router.use("/auth", (req, res) => proxyRequest(req, res, SERVICES.auth));
 router.use("/recommendation", (req, res) =>
@@ -102,7 +121,15 @@ router.use("/video-processing", (req, res) =>
 // For content-service - remove "/content" prefix before forwarding
 router.use("/content", (req, res) => {
   const newPath = req.path; // `/upload-metadata`
-  proxyRequest(req, res, SERVICES.content, newPath);
+  proxyRequestUpload(req, res, SERVICES.content, newPath);
 });
+// Routes
+// router.post("/content/upload-video", proxyRequestUpload(SERVICES.content)); // File Upload: Stream Proxy
+// router.post("/content/upload-metadata", (req, res) =>
+//   proxyRequest(req, res, SERVICES.content)
+// ); // Metadata: JSON Proxy
+// router.get("/content/videos", (req, res) =>
+//   proxyRequest(req, res, SERVICES.content)
+// ); // Fetch Videos: JSON Proxy
 
 module.exports = router;

@@ -15,6 +15,7 @@ import serviceAccount from "../firebase-service-account.json" assert { type: "js
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    storageBucket: "microservice-video-platform.firebasestorage.app",
   });
 }
 

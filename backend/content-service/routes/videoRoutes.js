@@ -3,6 +3,9 @@ import { getVideos } from "../controllers/videoController.js";
 import axios from "axios";
 import admin from "firebase-admin";
 import { db } from "../src/firebaseAdmin.js"; // Adjust if needed
+import multer from "multer";
+import { getStorage } from "firebase-admin/storage";
+const upload = multer({ storage: multer.memoryStorage() }); // Store in memory temporarily
 
 const router = express.Router();
 
@@ -77,6 +80,60 @@ router.get("/videos", async (req, res) => {
   } catch (error) {
     console.error("Error fetching videos:", error);
     res.status(500).json({ message: "Failed to fetch videos" });
+  }
+});
+
+// Upload video through backend
+router.post("/upload-video", upload.single("video"), async (req, res) => {
+  console.log("Received video upload request", req, req.body);
+  try {
+    const { title, uploadedBy } = req.body;
+    const file = req.file;
+    console.log("File:", file);
+    console.log("Title:", title);
+    console.log("Uploaded By:", uploadedBy);
+
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded." });
+    }
+
+    const bucket = getStorage().bucket();
+    const fileName = `videos/${Date.now()}_${file.originalname}`;
+    const fileUpload = bucket.file(fileName);
+
+    const blobStream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: file.mimetype || "video/mp4",
+      },
+    });
+
+    blobStream.on("error", (error) => {
+      console.error("BlobStream Error:", error);
+      res.status(500).json({ message: "Failed to upload video." });
+    });
+
+    blobStream.on("finish", async () => {
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
+        bucket.name
+      }/o/${encodeURIComponent(fileUpload.name)}?alt=media`;
+
+      // Save metadata into Firestore
+      await db.collection("videos").add({
+        title,
+        url: publicUrl,
+        uploadedBy,
+        createdAt: new Date(),
+      });
+
+      res
+        .status(201)
+        .json({ message: "Video uploaded successfully!", url: publicUrl });
+    });
+
+    blobStream.end(file.buffer);
+  } catch (error) {
+    console.error("Error in upload-video:", error);
+    res.status(500).json({ message: "Server error while uploading video." });
   }
 });
 

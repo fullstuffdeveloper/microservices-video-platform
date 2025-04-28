@@ -51,9 +51,19 @@
         <ul>
           <li v-for="video in videos" :key="video.id" class="mb-4">
             <p><strong>Title:</strong> {{ video.title }}</p>
-            <video width="400" controls>
+            <!-- <video width="100%" controls>
               <source :src="video.url" type="video/mp4" />
               Your browser does not support HTML5 video.
+            </video> -->
+            <video
+              id="myVideo"
+              controls
+              preload="auto"
+              poster="https://s.cdpn.io/6035/vp_poster.jpg"
+              width="380"
+            >
+              <source :src="video.url" type="video/mp4" />
+              <p>Your browser does not support the video tag.</p>
             </video>
             <p><strong>Uploaded By:</strong> {{ video.uploadedBy }}</p>
           </li>
@@ -70,7 +80,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import useFileUpload from '@/composables/useFileUpload'
-import { saveVideoMetadata } from '@/services/videoService'
+import { saveVideoMetadata, uploadVideoToBackend } from '@/services/videoService'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 
@@ -109,13 +119,13 @@ const handleUpload = async () => {
     alert('Please select a file and enter a title.')
     return
   }
-
+  const url = await uploadVideoToBackend(selectedFile.value.raw, title.value, authStore.user?.email)
   await uploadFile(selectedFile.value)
 
-  if (downloadUrl.value) {
+  if (url) {
     const videoData = {
       title: title.value,
-      url: downloadUrl.value,
+      url: url || '',
       uploadedBy: authStore.user?.email || 'anonymous',
       createdAt: new Date().toISOString(),
     }
