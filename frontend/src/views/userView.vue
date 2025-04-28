@@ -1,28 +1,34 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center p-8 bg-gray-100">
-    <h1 class="text-3xl font-bold mb-8 text-center">🎥 Watch Uploaded Videos</h1>
-    <el-button type="danger" class="w-auto" @click="logout"> Logout </el-button>
+  <div class="min-h-screen flex flex-col items-center justify-start py-10 px-4 bg-gray-50">
+    <div class="flex justify-between items-center mb-8 custom-header">
+      <div>
+        <h1 class="text-4xl font-bold mb-8 text-center">🎬 Watch Uploaded Videos</h1>
+      </div>
+      <div>
+        <el-button type="danger" class="logout-btn" @click="logout">Logout</el-button>
+      </div>
+    </div>
 
-    <el-card class="w-full max-w-6xl" shadow="hover">
-      <div v-if="loading" class="text-center p-6">
+    <el-card class="video-gallery-card" shadow="hover">
+      <div v-if="loading" class="loading-section">
         <el-spinner />
-        <p class="mt-4">Loading videos...</p>
+        <p class="mt-4 text-gray-600">Loading videos...</p>
       </div>
 
-      <div v-else-if="videos.length === 0" class="text-center p-6 text-gray-500">
-        No videos available yet.
+      <div v-else-if="videos.length === 0" class="empty-state">
+        <p>No videos available yet.</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-4">
+      <div v-else class="video-grid">
         <el-card
           v-for="(video, index) in videos"
           :key="index"
-          shadow="always"
-          class="flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition"
+          shadow="hover"
+          class="video-card"
           @click="selectVideo(video)"
         >
-          <h2 class="text-lg font-semibold mb-2">{{ video.title }}</h2>
-          <video controls class="w-full rounded-lg">
+          <h2 class="video-title">{{ video.title }}</h2>
+          <video controls class="video-player">
             <source :src="video.url" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -31,25 +37,20 @@
     </el-card>
 
     <!-- Recommendation Section -->
-    <div v-if="selectedVideo" class="w-full max-w-5xl mt-12">
+    <div v-if="selectedVideo" class="recommendation-section">
       <h2 class="text-2xl font-semibold mb-6 text-center">
-        🔮 Recommended for you based on "{{ selectedVideo.title }}"
+        ✨ Recommendations for "{{ selectedVideo.title }}"
       </h2>
 
-      <div v-if="recommendations.length === 0" class="text-center text-gray-500">
-        No recommendations found.
+      <div v-if="recommendations.length === 0" class="empty-state">
+        <p>No recommendations found.</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <el-card
-          v-for="(rec, idx) in recommendations"
-          :key="idx"
-          shadow="hover"
-          class="hover:scale-105 transition"
-        >
-          <h3 class="text-md font-semibold mb-2">{{ rec.title }}</h3>
-          <video controls class="w-full rounded">
-            <source :src="rec.url" type="video/mp4" />
+      <div v-else class="recommendation-grid">
+        <el-card v-for="(rec, idx) in recommendations" :key="idx" shadow="hover" class="video-card">
+          <h3 class="video-title">{{ rec.title }}</h3>
+          <video controls class="video-player">
+            <source :src="rec.downloadUrl" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </el-card>
@@ -113,5 +114,79 @@ const logout = async () => {
 <style scoped>
 .w-auto {
   width: auto;
+}
+.logout-btn {
+  margin-bottom: 20px;
+  width: auto;
+}
+
+.video-gallery-card {
+  width: 100%;
+  max-width: 1200px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+}
+
+.loading-section {
+  text-align: center;
+  padding: 50px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px 0;
+  color: #6b7280;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.video-card {
+  padding: 15px;
+  transition: transform 0.3s;
+  text-align: center;
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+}
+
+.video-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.video-player {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.recommendation-section {
+  width: 100%;
+  max-width: 1000px;
+  margin-top: 60px;
+  padding: 30px;
+}
+.custom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 18px;
 }
 </style>

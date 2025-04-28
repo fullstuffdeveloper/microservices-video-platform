@@ -82,7 +82,12 @@ const proxyRequest = async (req, res, serviceUrl) => {
     const response = await axios({
       method: req.method,
       url: `${serviceUrl}${req.path}`,
-      data: req.body,
+      data: req,
+      headers: {
+        ...req.headers, // 🔥 forward original headers (important!)
+        // host: undefined,
+      },
+      responseType: "json",
     });
     res.status(response.status).json(response.data);
   } catch (error) {
@@ -102,6 +107,7 @@ const proxyRequestUpload = async (req, res, serviceUrl) => {
         ...req.headers, // 🔥 forward original headers (important!)
       },
       responseType: "json",
+      // host: undefined,
     });
     res.status(response.status).json(response.data);
   } catch (error) {
@@ -118,7 +124,19 @@ router.use("/recommendation", (req, res) =>
 router.use("/video-processing", (req, res) =>
   proxyRequest(req, res, SERVICES.videoProcessing)
 );
-// For content-service - remove "/content" prefix before forwarding
+// // For content-service - remove "/content" prefix before forwarding
+// router.post("/content/upload-video", (req, res) => {
+//   const newPath = req.path; // `/upload-metadata`
+//   proxyRequestUpload(req, res, SERVICES.content, newPath);
+// });
+
+// router.post("/content/upload-metadata", (req, res) =>
+//   proxyRequest(req, res, SERVICES.content)
+// );
+
+// All other /content routes use proxyRequest (normal JSON)
+// router.use("/content", (req, res) => proxyRequest(req, res, SERVICES.content));
+
 router.use("/content", (req, res) => {
   const newPath = req.path; // `/upload-metadata`
   proxyRequestUpload(req, res, SERVICES.content, newPath);

@@ -16,6 +16,7 @@ router.get("/", getVideos);
 // Save video metadata
 router.post("/upload-metadata", async (req, res) => {
   try {
+    console.log("Received video metadata:", req.body);
     const { title, url, uploadedBy } = req.body;
 
     // For now just log and simulate storing it
@@ -85,7 +86,7 @@ router.get("/videos", async (req, res) => {
 
 // Upload video through backend
 router.post("/upload-video", upload.single("video"), async (req, res) => {
-  console.log("Received video upload request", req, req.body);
+  // console.log("Received video upload request", req, req.body);
   try {
     const { title, uploadedBy } = req.body;
     const file = req.file;
