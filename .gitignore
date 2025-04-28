@@ -1,1 +1,3 @@
 backend/content-service/src/firebase-service-account.json
+backend/content-service/firebase-service-account.json
+backend/content-service/.env
