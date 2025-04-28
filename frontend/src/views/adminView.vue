@@ -43,11 +43,32 @@
     </el-card>
 
     <el-button type="danger" class="w-auto" @click="logout"> Logout </el-button>
+
+    <div>
+      <h2 class="text-2xl font-bold mb-4">Uploaded Videos</h2>
+
+      <div v-if="videos.length">
+        <ul>
+          <li v-for="video in videos" :key="video.id" class="mb-4">
+            <p><strong>Title:</strong> {{ video.title }}</p>
+            <video width="400" controls>
+              <source :src="video.url" type="video/mp4" />
+              Your browser does not support HTML5 video.
+            </video>
+            <p><strong>Uploaded By:</strong> {{ video.uploadedBy }}</p>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No videos uploaded yet.</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import useFileUpload from '@/composables/useFileUpload'
 import { saveVideoMetadata } from '@/services/videoService'
 import { useAuthStore } from '@/stores/authStore'
@@ -60,6 +81,21 @@ const router = useRouter()
 const selectedFile = ref(null)
 const title = ref('')
 const uploadMessage = ref('')
+const videos = ref([])
+
+const fetchVideos = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/api/content/videos')
+    videos.value = response.data
+    console.log('Fetched Videos:', videos.value)
+  } catch (error) {
+    console.error('Error fetching videos:', error)
+  }
+}
+
+onMounted(async () => {
+  await fetchVideos()
+})
 
 const handleFileChange = async (file) => {
   console.log(file)
@@ -90,7 +126,7 @@ const handleUpload = async () => {
 }
 
 const logout = async () => {
-  await authStore.logout()
+  await authStore.logOut()
   router.push('/login')
 }
 </script>
