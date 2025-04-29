@@ -1,20 +1,18 @@
 const express = require("express");
-const router = express.Router();
 const axios = require("axios");
+const router = express.Router();
 
-// Recommendation Service Base URL
-const RECOMMENDATION_SERVICE_URL = "http://recommendation-service:5004";
+const RECOMMENDATION_SERVICE_URL =
+  process.env.RECOMMENDATION_SERVICE_URL ||
+  "http://recommendation-service:5004";
 
-router.get("/", async (req, res) => {
+router.get("/recommend", async (req, res) => {
   try {
     const response = await axios.get(`${RECOMMENDATION_SERVICE_URL}/recommend`);
     res.json(response.data);
   } catch (error) {
-    res
-      .status(error.response?.status || 500)
-      .json(
-        error.response?.data || { message: "Recommendation Service Error" }
-      );
+    console.error("❌ Error fetching recommendations:", error);
+    res.status(500).json({ message: "Failed to fetch recommendations" });
   }
 });
 

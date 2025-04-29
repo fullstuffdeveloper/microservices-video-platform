@@ -18,3 +18,7 @@ EXPOSE 5002
 
 # Run the microservice
 CMD ["node", "server.js"]
+
+#This makes sure the service account file exists inside container.
+COPY firebase-service-account.json ./firebase-service-account.json
+

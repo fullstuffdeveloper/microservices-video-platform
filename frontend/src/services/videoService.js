@@ -27,3 +27,19 @@ export async function fetchAllVideos() {
   })
   return videos
 }
+
+export async function uploadVideoToBackend(file, title, uploadedBy) {
+  console.log('Uploading video to backend:', file, title, uploadedBy)
+  const formData = new FormData()
+  formData.append('video', file) // The actual file
+  formData.append('title', title)
+  formData.append('uploadedBy', uploadedBy)
+
+  const response = await axios.post(`${API_URL}/api/content/upload-video`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data // Contains Firebase Storage URL if successful
+}

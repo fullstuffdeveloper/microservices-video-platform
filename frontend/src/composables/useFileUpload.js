@@ -14,9 +14,13 @@ export default function useFileUpload() {
   const uploadFile = async (file) => {
     try {
       const storage = getStorage()
-      const storageRef = firebaseRef(storage, file.name) // Or customize the path
+      const storageRef = firebaseRef(storage, `videos/${file.name}`) // Put inside 'videos' folder
 
-      const uploadTask = uploadBytesResumable(storageRef, file)
+      const metadata = {
+        contentType: file.type || 'video/mp4', // 💥 Critical: Pass correct file type
+      }
+
+      const uploadTask = uploadBytesResumable(storageRef, file, metadata)
 
       uploadTask.on(
         'state_changed',
