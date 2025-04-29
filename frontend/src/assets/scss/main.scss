@@ -1,0 +1,25 @@
+// @use 'tailwindcss/base';
+// @use 'tailwindcss/components';
+// @use 'tailwindcss/utilities';
+
+// @import "reset";
+// @import "color";
+
+.myinput {
+  @apply text-sm font-light lg:font-normal placeholder-[#BCBCBF] border focus:border-purple-500 w-full py-2.5 px-6 rounded-[10px] outline-none text-[#333];
+}
+
+.mylabel {
+  @apply text-sm font-medium block mb-2;
+}
+
+.el-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #1d4ed8;
+  color: white;
+  border-radius: 0.375rem;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}

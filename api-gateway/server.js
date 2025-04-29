@@ -25,6 +25,14 @@ app.get("/", (req, res) => {
   res.send("API Gateway is running 🚀");
 });
 
+app.use((req, res, next) => {
+  console.log(`Incoming Request: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Attach Content Service Routes
+// app.use("/content", contentRoutes); // ✅ Make it '/content'
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 API Gateway running on port ${PORT}`));
 
