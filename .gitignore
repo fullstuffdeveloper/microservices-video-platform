@@ -1,3 +1,7 @@
 backend/content-service/src/firebase-service-account.json
 backend/content-service/firebase-service-account.json
 backend/content-service/.env
+.env
+backend/content-service/.env
+backend/content-service/.gitignore
+.gitignore
