@@ -79,6 +79,9 @@
       </div>
     </div>
   </div>
+  
+  <!-- Add AI Chatbot for Admin -->
+  <ChatBot userType="admin" />
 </template>
 
 <script setup>
@@ -88,6 +91,7 @@ import useFileUpload from '@/composables/useFileUpload'
 import { saveVideoMetadata, uploadVideoToBackend } from '@/services/videoService'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
+import ChatBot from '@/components/ChatBot.vue'
 
 const { uploadFile, uploadProgress, uploadError, downloadUrl } = useFileUpload()
 const authStore = useAuthStore()

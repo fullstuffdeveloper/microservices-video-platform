@@ -59,7 +59,23 @@ services:
       - ../backend/recommendation-service:/app
     environment:
       - FLASK_ENV=production
+      - GROQ_API_KEY=${GROQ_API_KEY:-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}
+      - PORT=5004
     networks:             # <<<<<<<<<<<<<< Added
+      - backend-network
+
+  ai-chatbot-service:
+    build:
+      context: ../backend/ai-chatbot-service
+    ports:
+      - "5005:5005"
+    volumes:
+      - ../backend/ai-chatbot-service:/app
+    environment:
+      - FLASK_ENV=production
+      - GROQ_API_KEY=${GROQ_API_KEY:-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}
+      - PORT=5005
+    networks:
       - backend-network
 
   frontend:

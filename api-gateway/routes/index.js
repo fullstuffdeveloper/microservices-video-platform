@@ -63,6 +63,7 @@ const express = require("express");
 const axios = require("axios");
 
 const router = express.Router();
+const recommendationRoutes = require("./recommendationRoutes");
 
 // Define microservice URLs
 const SERVICES = {
@@ -74,6 +75,9 @@ const SERVICES = {
   videoProcessing:
     process.env.VIDEO_PROCESSING_SERVICE_URL ||
     "http://video-processing-service:5003",
+  aiChatbot:
+    process.env.AI_CHATBOT_SERVICE_URL ||
+    "http://ai-chatbot-service:5005",
 };
 
 // Proxy function
@@ -118,9 +122,9 @@ const proxyRequestUpload = async (req, res, serviceUrl) => {
 
 // Register Routes
 router.use("/auth", (req, res) => proxyRequest(req, res, SERVICES.auth));
-router.use("/recommendation", (req, res) =>
-  proxyRequest(req, res, SERVICES.recommendation)
-);
+
+// Use the recommendation routes module
+router.use("/recommendation", recommendationRoutes);
 router.use("/video-processing", (req, res) =>
   proxyRequest(req, res, SERVICES.videoProcessing)
 );
@@ -141,6 +145,51 @@ router.use("/content", (req, res) => {
   const newPath = req.path; // `/upload-metadata`
   proxyRequestUpload(req, res, SERVICES.content, newPath);
 });
+
+// AI Chatbot Routes - Using a specialized handler for the chatbot
+router.use("/ai-chatbot", (req, res) => {
+  try {
+    console.log(`🤖 Forwarding AI chatbot request to ${SERVICES.aiChatbot}${req.path}`);
+    
+    // For chat requests, specially handle the body to ensure it's formatted correctly
+    if (req.path === '/chat' && req.method === 'POST') {
+      const requestData = req.body;
+      console.log('AI Chatbot request data:', requestData);
+      
+      // Forward with properly formatted body
+      axios({
+        method: req.method,
+        url: `${SERVICES.aiChatbot}${req.path}`,
+        data: requestData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        responseType: 'json',
+      })
+      .then(response => {
+        console.log('AI Chatbot response received');
+        res.status(response.status).json(response.data);
+      })
+      .catch(error => {
+        console.error(`❌ Error communicating with AI Chatbot: ${error.message}`);
+        console.error(error.stack);
+        // Return a friendly error message
+        res.status(200).json({ 
+          response: "I'm having trouble connecting right now. Please try again in a moment." 
+        });
+      });
+    } else {
+      // For other routes like health checks, use the standard proxy
+      proxyRequest(req, res, SERVICES.aiChatbot);
+    }
+  } catch (error) {
+    console.error(`❌ Exception in AI chatbot route: ${error.message}`);
+    res.status(200).json({ 
+      response: "I'm having trouble processing your request. Please try again." 
+    });
+  }
+});
+
 // Routes
 // router.post("/content/upload-video", proxyRequestUpload(SERVICES.content)); // File Upload: Stream Proxy
 // router.post("/content/upload-metadata", (req, res) =>
